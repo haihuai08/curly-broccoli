@@ -1,1 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法律人实务辅助系统</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f5f7; margin: 0; padding: 0; color: #333; }
+        .header { background: #2c3e50; color: white; padding: 20px; text-align: center; border-bottom: 4px solid #3498db; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-3px); }
+        .tab { overflow: hidden; border-radius: 10px 10px 0 0; background: #3498db; }
+        .tab button { background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 20px; transition: 0.3s; color: white; font-weight: bold; }
+        .tab button:hover { background: #2980b9; }
+        .tab button.active { background: #2c3e50; }
+        .tabcontent { display: none; padding: 20px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 10px 10px; background: white; }
+        .btn { background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn:hover { background: #2980b9; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        .result { background: #e8f4fd; padding: 15px; border-left: 4px solid #3498db; margin-top: 15px; border-radius: 5px; }
+        .footer { text-align: center; padding: 20px; color: #777; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>⚖️ 法律人实务辅助系统</h1>
+    <p>合同审查 | 案例检索 | 职业规划</p >
+</div>
+
+<div class="container">
+    <div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'contract')">合同审查</button>
+        <button class="tablinks" onclick="openTab(event, 'case')">案例检索</button>
+        <button class="tablinks" onclick="openTab(event, 'plan')">职业计划</button>
+    </div>
+
+    <!-- 合同审查模块 -->
+    <div id="contract" class="tabcontent" style="display:block;">
+        <div class="card">
+            <h2>📋 合同审查引擎</h2>
+            <div class="input-group">
+                <label for="contractType">合同类型</label>
+                <select id="contractType">
+                    <option value="purchase">采购合同</option>
+                    <option value="service">服务合同</option>
+                    <option value="labor">劳动合同</option>
+                    <option value="lease">租赁合同</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="contractText">粘贴合同文本/上传内容</label>
+                <textarea id="contractText" rows="8" placeholder="请粘贴合同原文，或描述合同关键信息..."></textarea>
+            </div>
+            <button class="btn" onclick="analyzeContract()">开始分析</button>
+            <div id="contractResult" class="result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- 案例检索模块 -->
+    <div id="case" class="tabcontent">
+        <div class="card">
+            <h2>🔎 典型案例检索</h2>
+            <div class="input-group">
+                <label for="caseKeyword">案由/关键词</label>
+                <input type="text" id="caseKeyword" placeholder="例如：股权转让、保险拒赔、建设工程...">
+            </div>
+            <div class="input-group">
+                <label for="caseLevel">案例层级</label>
+                <select id="caseLevel">
+                    <option value="supreme">最高法典型案例</option>
+                    <option value="province">省高院案例</option>
+                    <option value="court">地方法院指导案例</option>
+                </select>
+            </div>
+            <button class="btn" onclick="searchCase()">检索案例</button>
+            <div id="caseResult" class="result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- 职业计划模块 -->
+    <div id="plan" class="tabcontent">
+        <div class="card">
+            <h2>📅 法律人职业规划</h2>
+            <div class="input-group">
+                <label for="goal">目标方向</label>
+                <select id="goal">
+                    <option value="lawyer">专职律师</option>
+                    <option value="corporate">公司法务</option>
+                    <option value="judiciary">司法/公职</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="timeline">规划节点</label>
+                <input type="text" id="timeline" placeholder="例如：2026年考执业证、2027年转所...">
+            </div>
+            <button class="btn" onclick="makePlan()">生成规划</button>
+            <div id="planResult" class="result" style="display:none;"></div>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    © 2026 法律人实务辅助系统 | 为马年法律职业发展助力
+</div>
+
+<script>
+function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+// 模拟功能：合同审查
+function analyzeContract() {
+    const type = document.getElementById("contractType").value;
+    const text = document.getElementById("contractText").value;
+    const resultDiv = document.getElementById("contractResult");
+    
+    if(!text) {
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = "<strong>⚠️ 请输入合同内容</strong>";
+        resultDiv.style.borderLeftColor = "#e74c3c";
+        return;
+    }
+
+    // 模拟分析结果
+    let result = "<strong>✅ 合同审查意见（模拟）：</strong><br>";
+    result += "1. 主体资格：已确认对方为合法存续主体，无异常。<br>";
+    result += "2. 标的条款：内容明确，具备可履行性。<br>";
+    result += "3. 金额与支付：大小写一致，支付节点清晰（需确认具体日期）。<br>";
+    result += "4. 风险提示：建议增加<u>争议管辖法院</u>及<u>不可抗力免责</u>条款。<br>";
+    result += "<br><small>注：正式系统将接入AI大模型进行全文语义分析。</small>";
+    
+    resultDiv.style.display = "block";
+    resultDiv.innerHTML = result;
+}
+
+// 模拟功能：案例检索
+function searchCase() {
+    const keyword = document.getElementById("caseKeyword").value;
+    const level = document.getElementById("caseLevel").value;
+    const resultDiv = document.getElementById("caseResult");
+    
+    if(!keyword) {
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = "<strong>⚠️ 请输入检索关键词</strong>";
+        resultDiv.style.borderLeftColor = "#e74c3c";
+        return;
+    }
+
+    let result = "<strong>📜 相似案例检索结果（模拟）：</strong><br>";
+    result += "关键词：" + keyword + "<br>";
+    result += "层级：" + (level === "supreme" ? "最高法" : "省高院") + "<br><br>";
+    
+    if(level === "supreme" && keyword.includes("股权转让")) {
+        result += "<strong>【2025年最高法典型案例】</strong><br>";
+        result += "案由：股权转让纠纷<br>";
+        result += "裁判要旨：因项目受阻导致合同目的不能实现，法院可酌情调减转让款，并支持分期支付方案。<br>";
+        result += "适用建议：可作为棚改/地产类项目的抗辩依据。<br>";
+    } else {
+        result += "未检索到完全匹配关键词的典型案例，请尝试其他关键词。";
+    }
+    
+    resultDiv.style.display = "block";
+    resultDiv.innerHTML = result;
+}
+
+// 模拟功能：职业规划
+function makePlan() {
+    const goal = document.getElementById("goal").value;
+    const timeline = document.getElementById("timeline").value;
+    const resultDiv = document.getElementById("planResult");
+    
+    let result = "<strong>🌟 马年职业规划方案：</strong><br>";
+    result += "目标方向：" + (goal === "lawyer" ? "专职律师" : goal === "corporate" ? "公司法务" : "司法/公职") + "<br>";
+    result += "节点规划：" + (timeline || "未填写，默认：2026年重点备考律师执业证") + "<br><br>";
+    
+    result += "🚀 2026年马年行动指南：<br>";
+    result += "1. 实务积累：每月复盘1-2个最高法典型案例，提升裁判思维。<br>";
+    result += "2. 技能强化：专注合同审查与争议解决，打造核心竞争力。<br>";
+    result += "3. 自我管理：坚持健身，保持良好体能，应对高强度工作。<br>";
+    
+    resultDiv.style.display = "block";
+    resultDiv.innerHTML = result;
+}
+</script>
+
+</body>
+</html>
 
